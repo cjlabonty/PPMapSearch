@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Map Search</title>
+
+  <!-- Load Leaflet CSS -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    .tab-container {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex; justify-content: center; gap: 10px;
+      padding: 0.5em;
+      z-index: 999;
+    }
+    .tab {
+      cursor: pointer; padding: 4px 10px; border: 1px solid #666; border-radius: 5px; font-size: 18px; width: 120px; text-align: center;
+      background-color: #ffffff;
+      /* background-image: url("portland.jpg");
+      background-position: center;
+      background-size: cover; */
+    }
+    .tab:hover {
+      background: #e0e0e0;
+    }
+    .price-marker-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .price-marker-icon .price-marker {
+      white-space: nowrap;
+      display: inline-block;
+      justify-content: center;
+      background-color: rgba(255, 255, 255, 0.9);
+      padding: 2px 8px;
+      border: 1px solid #666;
+      /* box-shadow: 0 0 3px rgb(0, 255, 42); */
+      border-radius: 999px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: bold;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      transform-origin: center center;
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+    }
+    .price-marker-icon:hover .price-marker {
+      /* box-shadow: 0 0 8px rgba(0,0,0,0.5); */
+      transform: translate(-50%, -50%) scale(1.1);
+      transform-origin: center center;
+      z-index: 999999;
+    }
+    .page-layout {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 5px;
+      gap: 0px;
+    }
+    .hover-popup {
+      width: 200px;
+      height: auto;
+      object-fit: cover;
+      border-radius: 3px;
+      display: block;
+      margin-bottom: 6px;
+      text-align: center;
+      font-size: medium;
+      text-wrap: wrap;
+      z-index: 999999;
+    }
+    .leaflet-tooltip.hover-popup img {
+      width: 100px;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 3px;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .count-icon {
+      position: absolute;
+      top: -4px;
+      right: 4px;
+      background-color: rgba(255, 255, 255, 0.95);
+      color: black;
+      font-size: 9px;
+      padding: 2px 6px;
+      border: 1px solid #000000;
+      border-radius: 999px;
+      font-weight: bold;
+      box-shadow: 0 0 3px #04344b;
+      /* transform: translate(-50%, -50%); */
+      transform-origin: center center;
+      /* transition: box-shadow 0.2s ease, transform 0.2s ease; */
+    }
+    .price-marker-icon .count-icon {
+      top: 7px;
+      right: -20px;
+    }
+    .price-marker-icon:hover .count-icon {
+      transform: scale(1.1);
+      transform-origin: center center;
+      z-index: 999999;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-layout">
+    <img src="filters.png" class="side-image" />
+    <!-- Map container -->
+    <div id="map">
+      <!-- Tabs -->
+      <div class="tab-container">
+        <div class="tab" data-lat="43.6557" data-lng="-70.2671" data-zoom="14">Portland</div>
+        <div class="tab" data-lat="43.6320" data-lng="-70.2674" data-zoom="14">South Portland</div>
+        <div class="tab" data-lat="43.4920" data-lng="-70.4534" data-zoom="14">Biddeford</div>
+        <!-- <div class="tab" data-lat="34.2070" data-lng="-77.8865" data-zoom="13">Wilmington</div> -->
+      </div>
+    </div>
+    <img src="units.png" class="side-image" />
+
+  <!-- Load Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", async function () {
+      // Map
+      const map = L.map("map").setView([43.6557, -70.2671], 14);
+      // Map style
+      const Jawg_Streets = L.tileLayer('https://tile.jawg.io/jawg-streets/{z}/{x}/{y}{r}.png?access-token=alJqGJgQQ9qhjVtAQcZPm3AUgLFazwU8RKOGWv2CmVUU3xpK8IgvVB94W1zUhMQX', {
+        attribution: '<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        minZoom: 10,
+        maxZoom: 19,
+      }).addTo(map);
+
+      const esriSat = L.tileLayer(
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+          attribution: 'Tiles © Esri',
+          minZoom: 10,
+          maxZoom: 19,
+        }
+      );
+
+      const esriRef = L.tileLayer(
+        'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
+        { maxZoom: 19, attribution: 'Labels © Esri' }
+      );
+
+      const osmLabels = L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png',
+        { maxZoom: 19, attribution: '© OpenStreetMap contributors' }
+      );
+
+      // Custom armature icon
+      const armatureIcon = L.icon({
+        iconUrl: 'https://www.portproperty.com/uploads/armature-clipart-2.png',
+        iconSize: [100, 100],
+        iconAnchor: [50, 50],
+        popupAnchor: [0, -50],
+        shadowSize:   [50, 64]
+      });
+
+      // Custom linden icon
+      const lindenIcon = L.icon({
+        iconUrl: 'thelinden.png',
+        iconSize: [60, 60],
+        iconAnchor: [30, 30],
+        popupAnchor: [0, -45],
+        shadowSize:   [30, 42]
+      });
+
+      // Normal icon
+      const customIcon = L.icon({
+        // iconUrl: 'https://www.portproperty.com/uploads/home-marker.png',
+        iconUrl: 'map_pin.png',
+        // iconUrl: 'house.png',
+        iconSize: [50, 50],
+        iconAnchor: [25, 50],
+        popupAnchor: [0, -45],
+      });
+
+      const iconMarkers = L.layerGroup(); // for zoomed out icon marker
+      const priceMarkers = L.layerGroup().addTo(map); // for zoomed in price marker
+
+      const response = await fetch('https://www.portproperty.com/wp-json/property/v1/available');
+      const data = await response.json();
+
+      const allProperties = data.properties
+      .filter(item => item.location && item.location.lat && item.location.lng)
+      .map(item => ({
+        image: item.image || '',
+        title: item.title || '',
+        address: item.location?.address.split(",").slice(0, 2).join(",") || '',
+        lat: parseFloat(item.location?.lat),
+        lng: parseFloat(item.location?.lng),
+        price: item.price !== null ? item.price : 'N/A',
+        building: item.building
+      }));
+
+      let maxPrice = 0;
+      let minPrice = 99999999;
+
+      // Check if building has multiple units
+      const locMap = {};
+      allProperties.forEach(p => {
+        const key = p.address;
+        if(!locMap[key]) {
+          locMap[key] = {
+            lat: parseFloat(p.lat),
+            lng: parseFloat(p.lng),
+            count: 0,
+            minPrice: Infinity,
+            title: p.title,
+            address: p.address,
+            image: p.image,
+            building: p.building
+          };
+        }
+        const entry = locMap[key];
+        entry.count += 1;
+        const priceNum = parseFloat(p.price);
+        if (!isNaN(priceNum)) {
+          entry.minPrice = Math.min(entry.minPrice, priceNum);
+        }
+        if(p.price > maxPrice) { maxPrice = p.price; }
+        else if(p.price < minPrice) { minPrice = p.price; }
+      });
+
+      const aggregated = Object.values(locMap);
+
+      // const colorScale = d3.scaleLinear([minPrice, maxPrice], ["green", "blue"]);
+      const colorScale = d3.scaleLinear()
+        .domain([minPrice, maxPrice])
+        .range(["#1FFA07", "#006FFF"]);
+
+      // Build all markers upfront
+      async function buildMarkers() {
+        iconMarkers.clearLayers();
+        priceMarkers.clearLayers();
+
+        for (let p of aggregated) {
+          let lat = parseFloat(p.lat), lng = parseFloat(p.lng);
+
+          const popupHtml = `
+            <div style="max-width: 200px;">
+              <img src="${p.image}" alt="${p.address}" style="width: 100%; border-radius: 8px; margin-bottom: 6px;" />
+              <b>${p.building}</b><br>
+            </div>
+          `;
+
+          let icon = customIcon;
+          let zIndex = 0;
+          if(p.address === "The Armature") {
+            icon = armatureIcon;
+            zIndex = 1000;
+          } else if (p.address === "132 Marginal Way - The Linden") {
+            icon = lindenIcon;
+            zIndex = 1000;
+          }
+
+          // icon = p.count > 1 ? countIcon : customIcon;
+          const pinHtml = `<img src="map_pin.png" style="width: 50px; height: 50px;" />`;
+          const normalIcon = makeIcon(pinHtml, p.count, [50,50]);
+
+          L.marker([lat, lng], { 
+            icon: normalIcon
+          })
+          .bindTooltip(popupHtml, {
+            direction: 'top',
+            offset: [0, -50],
+            opacity: 0.95,
+            className: 'hover-popup',
+            permanent: false,
+            sticky: false,
+          })
+          .addTo(iconMarkers);
+          
+          p.minPrice === Infinity ? p.minPrice = "$" : p.minPrice = p.minPrice;
+
+          const label = p.count > 1
+            // ? `⭐ $${p.minPrice}+ (${p.count})`
+            ? `$${p.minPrice}+`
+            : `$${p.minPrice}`;
+
+          const priceNum = parseFloat(p.minPrice);
+          const shadowColor = isNaN(priceNum)
+            ? "orange"
+            : colorScale(priceNum);
+          // const shadowColor = colorScale(p.price);
+          const priceHtml = `
+            <div class="price-marker"
+                style="box-shadow: 0 0 3px ${shadowColor};">
+              ${label}
+            </div>
+          `;
+          const priceIcon = makeIcon(priceHtml, p.count, [50,50], 'price-marker-icon', true);
+
+          L.marker([lat,lng], { icon: priceIcon })
+            .bindTooltip(popupHtml, {
+              direction: 'top',
+              offset: [0, -15],
+              opacity: 0.95,
+              className: 'hover-popup',
+              permanent: false,
+              sticky: false,
+            })
+            .addTo(priceMarkers);
+        }
+      }
+
+      await buildMarkers();
+
+      // Change marker type based on zoom
+      let lastZoom = map.getZoom();
+      map.on('zoomend', () => {
+        const z = map.getZoom();
+        if ((lastZoom < 14 && z >= 14) || (lastZoom >= 14 && z < 14)) {
+          updateMarkers();
+        }
+        if (lastZoom < 17 && z >= 17) {
+          map.removeLayer(Jawg_Streets);
+          map.addLayer(esriSat);
+          map.addLayer(osmLabels);
+        } else if (lastZoom >= 17 && z < 17) {
+          map.removeLayer(osmLabels);
+          map.removeLayer(esriSat);
+          map.addLayer(Jawg_Streets);
+        }
+        lastZoom = z;
+      });
+
+      // Change marker type
+      function updateMarkers() {
+        map.removeLayer(iconMarkers);
+        map.removeLayer(priceMarkers);
+        if (map.getZoom() < 14) {
+          map.addLayer(iconMarkers);
+        } else {
+          map.addLayer(priceMarkers);
+        }
+      }
+      updateMarkers();
+
+      // Build the icons with the badge for the unit count
+      function makeIcon(innerHtml, count, size = [50,50], extraClass = '', anchorAtCenter = false) {
+        const badgeHtml = count > 1
+          ? `<span class="count-icon">${count}</span>`
+          : ``;
+
+        return L.divIcon({
+          className: `custom-div-icon ${extraClass}`.trim(),
+          html: `
+            <div style="
+                position: relative;
+                width: ${size[0]}px;
+                height: ${size[1]}px;
+                overflow: visible;
+              ">
+              ${innerHtml}
+              ${badgeHtml}
+            </div>
+          `,
+          iconSize: size,
+          iconAnchor: anchorAtCenter
+            ? [size[0]/2, size[1]/2]
+            : [size[0]/2, size[1]],
+          popupAnchor: [0, -size[1]]
+        });
+      }
+
+      // Tab clicks
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          const lat = parseFloat(tab.dataset.lat);
+          const lng = parseFloat(tab.dataset.lng);
+          const zoom = parseInt(tab.dataset.zoom);
+          map.setView([lat, lng], zoom);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
