@@ -199,20 +199,29 @@
       const iconMarkers = L.layerGroup(); // for zoomed out icon marker
       const priceMarkers = L.layerGroup().addTo(map); // for zoomed in price marker
 
-      const response = await fetch('https://www.portproperty.com/wp-json/property/v1/available');
+      const response = await fetch('https://www.portproperty.com/wp-json/property/v1/available', { cache: "no-store" });
       const data = await response.json();
 
       const allProperties = data.properties
-      .filter(item => item.location && item.location.lat && item.location.lng)
+      //.filter(item => item.location && item.location.lat && item.location.lng)
       .map(item => ({
         image: item.image || '',
         title: item.title || '',
-        address: item.location?.address.split(",").slice(0, 2).join(",") || '',
+        //address: item.location?.address.split(",").slice(0, 2).join(",") || '',
+        address: item.location?.address,
         lat: parseFloat(item.location?.lat),
         lng: parseFloat(item.location?.lng),
         price: item.price !== null ? item.price : 'N/A',
+        priceFormatted: item.price_formatted !== null ? item.price_formatted : 'N/A',
         building: item.building
       }));
+
+      // Combine units where building has two different names
+      allProperties.forEach(item => {
+        if (item.building === "28 Pearl St") {
+          item.building = "24 Pearl Street";
+        }
+      });
 
       let maxPrice = 0;
       let minPrice = 99999999;
@@ -220,13 +229,14 @@
       // Check if building has multiple units
       const locMap = {};
       allProperties.forEach(p => {
-        const key = p.address;
+        const key = p.building;
         if(!locMap[key]) {
           locMap[key] = {
             lat: parseFloat(p.lat),
             lng: parseFloat(p.lng),
             count: 0,
             minPrice: Infinity,
+            priceFormatted: p.priceFormatted,
             title: p.title,
             address: p.address,
             image: p.image,
@@ -236,16 +246,49 @@
         const entry = locMap[key];
         entry.count += 1;
         const priceNum = parseFloat(p.price);
+
         if (!isNaN(priceNum)) {
-          entry.minPrice = Math.min(entry.minPrice, priceNum);
+          if(priceNum > maxPrice) { maxPrice = priceNum; }
+          if(priceNum < minPrice) { minPrice = priceNum; }
+          if(priceNum < entry.minPrice) {
+            entry.minPrice = priceNum;
+            entry.priceFormatted = p.priceFormatted;
+          }
         }
-        if(p.price > maxPrice) { maxPrice = p.price; }
-        else if(p.price < minPrice) { minPrice = p.price; }
+
+        if (isNaN(entry.lat) && isNaN(entry.lng) && !isNaN(p.lat) && !isNaN(p.lng)) {
+          entry.lat = p.lat;
+          entry.lng = p.lng;
+        }
+        console.log(`${entry.building}: Lat: ${entry.lat} Lng: ${entry.lng}`);
       });
 
       const aggregated = Object.values(locMap);
 
-      // const colorScale = d3.scaleLinear([minPrice, maxPrice], ["green", "blue"]);
+      // In case one of the main buildings has no location
+      aggregated.forEach(item => {
+        if(isNaN(item.lat) || isNaN(item.lng)) {
+          switch (item.building) {
+            case "The Eddy":
+              item.lat = 43.485531; item.lng = -70.486280;
+              break;
+            case "132 Marginal Way - The Linden":
+              item.lat = 43.663263; item.lng = -70.263645;
+              break;
+            case "Lofts on the Levee":
+              item.lat = 43.496855; item.lng = -70.454992;
+              break;
+            case "52 Hanover Street - The Armature":
+              item.lat = 43.658970; item.lng = -70.264385;
+              break;
+            case "24 Pearl Street":
+              item.lat = 43.495347; item.lng = -70.453581;
+              break;
+          }
+        }
+      });
+
+      // Color gradient based on price
       const colorScale = d3.scaleLinear()
         .domain([minPrice, maxPrice])
         .range(["#1FFA07", "#006FFF"]);
@@ -257,10 +300,11 @@
 
         for (let p of aggregated) {
           let lat = parseFloat(p.lat), lng = parseFloat(p.lng);
+          if (isNaN(lat) || isNaN(lng)) continue;
 
           const popupHtml = `
             <div style="max-width: 200px;">
-              <img src="${p.image}" alt="${p.address}" style="width: 100%; border-radius: 8px; margin-bottom: 6px;" />
+              <img src="${p.image}" alt="${p.building}" style="width: 100%; border-radius: 8px; margin-bottom: 6px;" />
               <b>${p.building}</b><br>
             </div>
           `;
@@ -275,7 +319,7 @@
             zIndex = 1000;
           }
 
-          // icon = p.count > 1 ? countIcon : customIcon;
+          // Consider adding shadow. Likely need a svg
           const pinHtml = `<img src="map_pin.png" style="width: 50px; height: 50px;" />`;
           const normalIcon = makeIcon(pinHtml, p.count, [50,50]);
 
@@ -292,18 +336,18 @@
           })
           .addTo(iconMarkers);
           
-          p.minPrice === Infinity ? p.minPrice = "$" : p.minPrice = p.minPrice;
-
-          const label = p.count > 1
-            // ? `⭐ $${p.minPrice}+ (${p.count})`
-            ? `$${p.minPrice}+`
-            : `$${p.minPrice}`;
-
           const priceNum = parseFloat(p.minPrice);
-          const shadowColor = isNaN(priceNum)
+
+          const label = priceNum === Infinity
+            ? "$$"
+            : p.count > 1
+              ? `${p.priceFormatted}+`
+              : `${p.priceFormatted}`;
+
+          const shadowColor = priceNum === Infinity
             ? "orange"
             : colorScale(priceNum);
-          // const shadowColor = colorScale(p.price);
+
           const priceHtml = `
             <div class="price-marker"
                 style="box-shadow: 0 0 3px ${shadowColor};">
