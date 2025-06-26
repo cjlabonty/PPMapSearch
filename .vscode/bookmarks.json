@@ -1,0 +1,69 @@
+{
+	"files": [
+		{
+			"path": "mapsearch.html",
+			"bookmarks": [
+				{
+					"line": 191,
+					"column": 0,
+					"label": "Page Layout"
+				},
+				{
+					"line": 217,
+					"column": 6,
+					"label": "Map Settings"
+				},
+				{
+					"line": 259,
+					"column": 6,
+					"label": "Icons"
+				},
+				{
+					"line": 294,
+					"column": 6,
+					"label": "Fetch Endpoint"
+				},
+				{
+					"line": 329,
+					"column": 6,
+					"label": "Combine Units"
+				},
+				{
+					"line": 402,
+					"column": 6,
+					"label": "Markers"
+				},
+				{
+					"line": 426,
+					"column": 10,
+					"label": "Popup"
+				},
+				{
+					"line": 435,
+					"column": 1,
+					"label": "Icon Marker"
+				},
+				{
+					"line": 467,
+					"column": 10,
+					"label": "Price Marker"
+				},
+				{
+					"line": 525,
+					"column": 6,
+					"label": "Icon Settings"
+				},
+				{
+					"line": 556,
+					"column": 25,
+					"label": "Zoom Controls"
+				},
+				{
+					"line": 592,
+					"column": 6,
+					"label": "Tab Settings"
+				}
+			]
+		}
+	]
+}
