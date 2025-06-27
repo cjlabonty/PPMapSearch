@@ -1,3 +1,5 @@
+      git restore .vscode/bookmarks.json
+      
       // const properties = [
       //   /* Portland */
       //   { lat: 43.663084, lng: -70.264085, title: 'The Linden', address: '132 Marginal Way, Portland, ME 04101', price: 2120 },
