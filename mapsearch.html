@@ -19,7 +19,25 @@
 
   <style>
     body { font-family: sans-serif; margin: 0; padding: 0; }
-    .tab-container {
+    .page-layout { /* Layout of the page */
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .page-layout .header { /* Header */
+      width: 100%;
+      flex: none;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #888;
+    }
+    .content-row { /* Horizontally aligns below header */
+      display: flex;
+      flex: 1;
+      gap: 8px;
+      margin-left: 10px;
+      margin-right: 10px;
+    }
+    .tab-container { /* Controls spacing and position of all tabs */
       position: absolute;
       bottom: 12px;
       left: 50%;
@@ -28,9 +46,10 @@
       padding: 0.5em;
       z-index: 999;
     }
-    .tab {
+    .tab { /* Controls how each tab looks (broad) */
       display: flex;
-      cursor: pointer; padding: 3px 3px; border: 1px solid #6d6d6d; border-radius: 5px; font-size: 18px; width: 130px; height: 30px;
+      cursor: pointer; padding: 3px 3px; border: 1px solid #6d6d6d; border-radius: 3px; font-size: 17px; width: 130px; height: 30px;
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
       align-items: center;
       justify-content: center;
       background-color: #ffffff;
@@ -39,47 +58,94 @@
       color: rgb(0, 0, 0);
       box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
     }
-    .tab-portland {
+    /* Special settings for city tabs */
+
+    /* Image version */
+    /* .tab-portland {
       background-image: url("portland.jpg");
-      color: white;
       background-position: 10% 20%;
       background-size: 130%;
-      font-size: 22px;
+      color: white;
       font-weight: bold;
       text-shadow: 1px 1px 3px rgba(2, 0, 121, 1);
     }
     .tab-south-portland {
       background-image: url("south-portland.jpg");
-      color: white;
       background-position: 10% 40%;
       background-size: 140%;
-      font-size: 17px;
+      color: white;
       font-weight: bold;
-      text-shadow: 1px 1px 3px rgb(255, 174, 0);
+      text-shadow: 1px 1px 3px rgb(75, 75, 75);
     }
     .tab-biddeford {
       background-image: url("biddeford.jpg");
-      color: white;
       background-position: 80% 35%;
       background-size: 110%;
-      font-size: 20px;
+      color: white;
       font-weight: bold;
       text-shadow: 1px 1px 3px rgb(131, 6, 6);
     }
-    .tab:hover {
+    .tab-wilmington {
+      background-image: url("wilmington.jpg");
+      background-position: 40% 40%;
+      background-size: 110%;
+      color: white;
+      font-weight: bold;
+      text-shadow: 1px 1px 3px rgb(131, 6, 94);
+    } */
+
+    /* Simple version */
+    .tab-portland {
+      color: black;
+      font-weight: bold;
+      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
+      box-shadow: 0px 0px 1px rgb(0, 90, 207);
+    }
+    .tab-south-portland {
+      color: black;
+      font-weight: bold;
+      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
+      box-shadow: 0px 0px 1px rgb(255, 136, 0);
+    }
+    .tab-biddeford {
+      color: black;
+      font-weight: bold;
+      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
+      box-shadow: 0px 0px 1px rgb(255, 2, 2);
+    }
+    .tab-wilmington {
+      color: black;
+      font-weight: bold;
+      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
+      box-shadow: 0px 0px 1px rgb(184, 3, 255);
+    }
+
+    .tab:hover { /* When cursor is hovering over one of the tabs */
       /* background: #e0e0e0; */
       opacity: 0.8;
     }
-    .price-marker-wrapper {
+    .custom-div-icon .icon-marker,
+    .custom-div-icon .count-icon { /* Adding animation to icon marker and count icon */
+      transition: transform 0.2s ease;
+      transform-origin: center center;
+    }
+    .custom-div-icon:hover .icon-marker { /* When hovering over the icon marker */
+      transform: scale(1.1);
+    }
+    .custom-div-icon:hover .count-icon { /* How count icon changes when hovering over price icon */
+      transform: translate(15%, -15%) scale(1.1);
+      z-index: 999;
+    }
+    .price-marker-wrapper { /* Positioning of price markers */
       position: relative;
       display: inline-block;
     }
-    .price-marker-icon .price-marker {
+    .price-marker-icon .price-marker { /* Design of price markers ($1400+) */
       overflow: hidden;
       white-space: nowrap;
       display: inline-block;
       justify-content: center;
-      background-color: rgba(255, 255, 255, 0.9);
+      background-color: rgba(255, 255, 255, 1);
       padding: 2px 8px;
       border: 1px solid #666;
       /* box-shadow: 0 0 3px rgb(0, 255, 42); */
@@ -95,20 +161,42 @@
       transform-origin: center center;
       transition: box-shadow 0.2s ease, transform 0.2s ease;
     }
-    .price-marker-icon:hover .price-marker {
+    .price-marker-icon:hover .price-marker { /* How price marker looks hovering over it */
       /* box-shadow: 0 0 8px rgba(0,0,0,0.5); */
       transform: translate(-50%, -50%) scale(1.1);
       transform-origin: center center;
       z-index: 999999;
     }
-    .page-layout {
+    .count-icon { /* How count icon (2) looks */
+      position: absolute;
+      top: -4px;
+      right: 4px;
+      background-color: rgba(255, 255, 255, 1);
+      font-family:system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      color: black;
+      font-size: 9px;
+      padding: 2px 6px;
+      border: 1px solid #000000;
+      border-radius: 999px;
+      font-weight: bold;
+      box-shadow: 0 0 3px #003147;
+      transform-origin: center center;
+      transition: transform 0.2s ease;
       display: flex;
+      align-items: center;
       justify-content: center;
-      align-items: flex-start;
-      padding: 5px;
-      gap: 0px;
     }
-    .hover-popup {
+    .price-marker-icon .count-icon { /* Position of count icon on price marker (2) */
+      /* display: none; */
+      top: 7px;
+      right: -18px;
+    }
+    .price-marker-icon:hover .count-icon { /* How count icon changes when hovering over price icon */
+      transform: translate(15%, -10%) scale(1.1);
+      transform-origin: center center;
+      z-index: 999999;
+    }
+    .hover-popup { /* Design of popup when you hover over a marker */
       width: 200px;
       height: auto;
       object-fit: cover;
@@ -120,7 +208,7 @@
       text-wrap: wrap;
       z-index: 999999;
     }
-    .leaflet-tooltip.hover-popup img {
+    .leaflet-tooltip.hover-popup img { /* Design of image in popup */
       width: 100px;
       height: 200px;
       object-fit: cover;
@@ -128,44 +216,21 @@
       display: block;
       margin-bottom: 6px;
     }
-    .count-icon {
-      position: absolute;
-      top: -4px;
-      right: 4px;
-      background-color: rgba(255, 255, 255, 0.95);
-      color: black;
-      font-size: 9px;
-      padding: 2px 6px;
-      border: 1px solid #000000;
-      border-radius: 999px;
-      font-weight: bold;
-      box-shadow: 0 0 3px #04344b;
-      /* transform: translate(-50%, -50%); */
-      transform-origin: center center;
-      /* transition: box-shadow 0.2s ease, transform 0.2s ease; */
-    }
-    .price-marker-icon .count-icon {
-      top: 7px;
-      right: -20px;
-    }
-    .price-marker-icon:hover .count-icon {
-      transform: scale(1.1);
-      transform-origin: center center;
-      z-index: 999999;
-    }
-    .pplogo {
+    .pplogo { /* Port Property logo */
       position: absolute;
       top: 0;
       right: 0;
       z-index: 99999;
       transform: scale(0.5);
       transform-origin: top right;
-      /* backdrop-filter: blur(9px);
-      -webkit-backdrop-filter: blur(6px); */
-      opacity: 0.8;
+      opacity: 1;
       filter: drop-shadow(0 2px 2px rgb(255, 255, 255));
+      border-bottom-left-radius: 20px;
     }
-    .ripple {
+    .pplogo-bg { /* Opaque background (gets toggled based on zoom) */
+      background-color: rgba(255, 255, 255, 1);
+    }
+    .ripple { /* How ripple looks */
       position: absolute;
       border-radius: 50%;
       background: rgba(0, 0, 0, 0.2);
@@ -174,16 +239,44 @@
       pointer-events: none;
       z-index: 99999;
     }
-    @keyframes ripple-animation {
+    @keyframes ripple-animation { /* Ripple animation when clicking */
       to {
         transform: scale(4);
         opacity: 0;
       }
     }
-    #map {
-      height: 100vh;
+    .unit-counter { /* Shows number of units in top left */
+      background: rgba(255, 255, 255, 1);
+      border: 1px solid #888;
+      padding: 4px 8px;
+      border-radius: 4px;
+      left: 40px;
+      top: -74px;
+      font-size: 14px;
+      font-family: sans-serif;
+      color: #000;
+    }
+    .map-loader { /* Design of loading animation */
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 40px;
+      height: 40px;
+      margin: -20px 0 0 -20px;
+      border: 4px solid rgba(0,0,0,0.1);
+      border-top-color: #333;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      z-index: 1000;
+    }
+    @keyframes spin { /* Loading animation */
+      to { transform: rotate(360deg); }
+    }
+    #map { /* Size and position of map on the page */
+      height: 85vh;
       width: 100%;
       margin: 0 auto;
+      border: 2px solid #d3d3d3;
     }
   </style>
 </head>
@@ -194,25 +287,32 @@
 
 <body>
   <div class="page-layout">
-    <img src="filters.png" class="side-image" />
-    <!-- Map container -->
-    <div id="map">
-      <img src="pplogo.jpg" class="pplogo" />
-      <!-- Tabs -->
-      <div class="tab-container">
-        <div class="tab tab-portland" data-lat="43.6557" data-lng="-70.2671" data-zoom="14">Portland</div>
-        <div class="tab tab-south-portland" data-lat="43.6320" data-lng="-70.2674" data-zoom="14">South Portland</div>
-        <div class="tab tab-biddeford" data-lat="43.4920" data-lng="-70.4534" data-zoom="14">Biddeford</div>
-        <!-- <div class="tab" data-lat="34.2070" data-lng="-77.8865" data-zoom="13">Wilmington</div> -->
+    <img src="header2.png" class="header" />
+    <div class="content-row">
+      <img src="filters.png" class="side-image" />
+      <!-- Map container -->
+      <div id="map">
+        <div id="mapLoader" class="map-loader" style="display: none;"></div>
+        <img src="pplogo.jpg" class="pplogo" />
+        <!-- Tabs -->
+        <div class="tab-container">
+          <div id="Portland" class="tab tab-portland" data-lat="43.6557" data-lng="-70.2671" data-zoom="14" data-bounds="">Portland</div>
+          <div id="SouthPortland" class="tab tab-south-portland" data-lat="43.6320" data-lng="-70.2674" data-zoom="14" data-bounds="">South Portland</div>
+          <div id="Biddeford" class="tab tab-biddeford" data-lat="43.4920" data-lng="-70.4534" data-zoom="14" data-bounds="">Biddeford</div>
+          <div id="Wilmington" class="tab tab-wilmington" data-lat="34.2070" data-lng="-77.8865" data-zoom="13" data-bounds="">Wilmington</div>
+        </div>
       </div>
+      <img src="units.png" class="side-image" />
     </div>
-    <img src="units.png" class="side-image" />
 
   <!-- Load Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet-ajax"></script>
   <script>
     document.addEventListener("DOMContentLoaded", async function () {
+      // Loading animation
+      const loader = document.getElementById('mapLoader');
+      loader.style.display = 'block';
 
 
       /* MAP SETTINGS */
@@ -220,41 +320,79 @@
 
       // Create map and zoom into Portland
       const map = L.map("map").setView([43.6557, -70.2671], 14);
+      // Recenter map after page loads
+      window.addEventListener("load", () => {
+        map.invalidateSize();
+        map.setView([43.6557, -70.2671], 14);
+      });
 
-      // Map style
+      // Main map style
       const Jawg_Streets = L.tileLayer('https://tile.jawg.io/jawg-streets/{z}/{x}/{y}{r}.png?access-token=alJqGJgQQ9qhjVtAQcZPm3AUgLFazwU8RKOGWv2CmVUU3xpK8IgvVB94W1zUhMQX', {
         attribution: '<a href="https://jawg.io" title="Tiles Courtesy of Jawg Maps" target="_blank">&copy; <b>Jawg</b>Maps</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-        minZoom: 10,
+        minZoom: 6,
         maxZoom: 19,
       }).addTo(map);
+      // Satellite map when zoomed in
       const esriSat = L.tileLayer(
         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
           attribution: 'Tiles © Esri',
-          minZoom: 10,
+          minZoom: 6,
           maxZoom: 19,
         }
       );
-      const esriRef = L.tileLayer(
-        'https://services.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}',
-        { maxZoom: 19, attribution: 'Labels © Esri' }
-      );
+      // Street labels in satellite view
       const osmLabels = L.tileLayer(
         'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}.png',
         { maxZoom: 19, attribution: '© OpenStreetMap contributors' }
       );
-      fetch('portlandjson.json')
+      // Portland city boundaries polygon
+      fetch('portland.geojson')
       .then(res => res.json())
       .then(geojson => {
         const boundaryLayer = L.geoJSON(geojson, {
-          style: {
-            color: 'blue',
-            opacity: 0.3,
-            weight: 2,
-            fillOpacity: 0.05
-          }
-        }).addTo(map);
-        map.fitBounds(boundaryLayer.getBounds());
+          style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
+        //}).addTo(map);
+        });
+        document.getElementById('Portland').bounds = boundaryLayer;
       });
+      // South Portland city boundaries polygon
+      fetch('south-portland.geojson')
+      .then(res => res.json())
+      .then(geojson => {
+        const boundaryLayer = L.geoJSON(geojson, {
+          style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
+        //}).addTo(map);
+        });
+        document.getElementById('SouthPortland').bounds = boundaryLayer;
+      });
+      // Biddeford city boundaries polygon
+      fetch('biddeford.geojson')
+      .then(res => res.json())
+      .then(geojson => {
+        const boundaryLayer = L.geoJSON(geojson, {
+          style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
+        //}).addTo(map);
+        });
+        document.getElementById('Biddeford').bounds = boundaryLayer;
+      });
+      fetch('wilmington.geojson')
+      .then(res => res.json())
+      .then(geojson => {
+        const boundaryLayer = L.geoJSON(geojson, {
+          style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
+        //}).addTo(map);
+        });
+        document.getElementById('Wilmington').bounds = boundaryLayer;
+      });
+      // Westbrook city boundaries polygon
+      // fetch('westbrook.geojson')
+      // .then(res => res.json())
+      // .then(geojson => {
+      //   const boundaryLayer = L.geoJSON(geojson, {
+      //     style: { color: 'black', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
+      //   }).addTo(map);
+      //   map.fitBounds(boundaryLayer.getBounds());
+      // });
 
 
       /* ICONS */
@@ -273,12 +411,12 @@
       const lindenIcon = L.icon({
         iconUrl: 'thelinden.png',
         iconSize: [60, 60],
-        iconAnchor: [30, 30],
+        iconAnchor: [30, 60],
         popupAnchor: [0, -45],
-        shadowSize:   [30, 42]
+        shadowSize:   [300, 42],
       });
 
-      // Normal icon
+      // Normal (P) icon
       const customIcon = L.icon({
         // iconUrl: 'https://www.portproperty.com/uploads/home-marker.png',
         iconUrl: 'map_pin.png',
@@ -295,10 +433,12 @@
       /* FETCH ENDPOINT */
 
 
-      const response = await fetch('https://www.portproperty.com/wp-json/property/v1/available', { cache: "no-store" });
+      // Read available properties endpoint (this is where all the data comes from) (added date at the end to prevent caching, meaning the map is always 100% up to date)
+      //const response = await fetch(`https://www.portproperty.com/wp-json/property/v1/available?t=${Date.now()}`); // USE THIS FOR RELEASED VERSION
+      const response = await fetch("https://www.portproperty.com/wp-json/property/v1/available"); // USE THIS FOR TESTING TO SAVE BANDWIDTH (IT CACHES)
       const data = await response.json();
       const allProperties = data.properties
-      .map(item => ({
+      .map(item => ({ // get data for each property
         image: item.image || '',
         title: item.title || '',
         address: item.location?.address,
@@ -307,13 +447,24 @@
         price: item.price !== null ? item.price : 'N/A',
         priceFormatted: item.price_formatted !== null ? item.price_formatted : 'N/A',
         building: item.building,
-        availability: item.availability
+        availability: item.availability,
+        bedrooms: item.bedrooms
       }));
+      // Show unit count
+      const numUnits = allProperties.length;
+      const unitControl = L.control({ position: 'topleft' });
+      unitControl.onAdd = function (map) {
+        const div = L.DomUtil.create('div', 'unit-counter');
+        div.innerHTML = `Units: ${allProperties.length}`;
+        return div;
+      };
 
-      // Combine units where building has two different names
+      unitControl.addTo(map);
+
+      // Rename units with unclear neames
       allProperties.forEach(item => {
         switch(item.building) {
-          case "28 Pearl St": // combine with 24 pearl street
+          case "28 Pearl St": // combine with 24 pearl street (both are Riverdam)
           case "24 Pearl Street":
             item.building = "Riverdam"; break;
           case "132 Marginal Way - The Linden":
@@ -323,34 +474,37 @@
         }
       });
 
-      let maxPrice = 0;
-      let minPrice = 99999999;
-
 
       /* COMBINE UNITS */
 
 
       // Check if building has multiple units and combine them into one object
       const locMap = {};
+      let maxPrice = 0;
+      let minPrice = 99999999;
       allProperties.forEach(p => {
         const key = p.building;
-        // For first unit in building
+        // For first unit in building, create hashmap entry
         if(!locMap[key]) {
           locMap[key] = {
             lat: parseFloat(p.lat),
             lng: parseFloat(p.lng),
             count: 0,
             minPrice: Infinity,
+            maxPrice: 0,
             priceFormatted: p.priceFormatted,
+            maxPriceFormatted: p.priceFormatted,
             title: p.title,
             address: p.address,
             image: p.image,
             building: p.building,
-            availability: p.availability
+            availability: p.availability,
+            bedrooms: []
           };
         }
         const entry = locMap[key];
         entry.count += 1;
+        entry.bedrooms.push(p.bedrooms);
         const priceNum = parseFloat(p.price);
 
         // Calculate total min and max prices and min price per building
@@ -360,6 +514,10 @@
           if(priceNum < entry.minPrice) {
             entry.minPrice = priceNum;
             entry.priceFormatted = p.priceFormatted;
+          }
+          if(priceNum > entry.maxPrice) {
+            entry.maxPrice = priceNum;
+            entry.maxPriceFormatted = p.priceFormatted;
           }
         }
 
@@ -379,6 +537,7 @@
         console.log(`${entry.building}: Lat: ${entry.lat} Lng: ${entry.lng}`);
       });
 
+      // Data structure with all buildings and their units
       const aggregated = Object.values(locMap);
 
       // In case one of the main buildings has no location
@@ -403,6 +562,12 @@
       /* MARKERS */
 
 
+      // Linden icon
+      // L.marker([43.663263, -70.263645], { 
+      //   icon: lindenIcon
+      // }).addTo(map);
+
+
       // Color gradient for markers based on price
       const colorScale = d3.scaleLinear()
         .domain([minPrice, maxPrice])
@@ -418,16 +583,59 @@
           let lat = parseFloat(p.lat), lng = parseFloat(p.lng);
           if (isNaN(lat) || isNaN(lng)) continue;
 
+          // Label for price
+          const priceLabel = p.minPrice === Infinity || p.maxPrice === Infinity
+            ? `View Site for Price`
+            : p.minPrice === p.maxPrice
+              ? `${p.priceFormatted}`
+              : `${p.priceFormatted} - ${p.maxPriceFormatted}`
+
           // Label for availability (REMOVE IF NOTHING IS CHANGED)
           const availabilityLabel = p.availability.formatted === "Available Now!"
             ? "Available Now!"
             : `${p.availability.formatted}`
+
+          // Label for number of bedrooms
+          let bedroomsLabel;
+          if(p.bedrooms.size === 1) {
+            bedroomsLabel = `${p.bedrooms[0]}`;
+          } else {
+            let parsedValues = [];
+            // Calculate highest and lowest number of rooms per building for "0-2 Bedrooms" text
+            p.bedrooms.forEach( item => {
+              switch (item) {
+                case "Studio": parsedValues.push(0); break;
+                case "One Bedroom": parsedValues.push(1); break;
+                case "Two Bedroom":
+                case "Two Bedrooms": parsedValues.push(2); break;
+                case "Three Bedroom":
+                case "Three Bedrooms": parsedValues.push(3); break;
+                case "Four Bedroom":
+                case "Four Bedrooms": parsedValues.push(4); break;
+                case "Five Bedroom":
+                case "Five Bedrooms": parsedValues.push(5); break;
+              }
+            });
+            const minBedrooms = Math.min(...parsedValues);
+            const maxBedrooms = Math.max(...parsedValues);
+            // Format text so it says "Studio" instead of 0 Bedrooms and 1 Bedrooms instead of Bedrooms
+            bedroomsLabel = minBedrooms !== maxBedrooms
+              ? `${minBedrooms} - ${maxBedrooms} Bedrooms`
+              : minBedrooms === 0
+                ? "Studio"
+                : minBedrooms === 1
+                  ? "1 Bedroom"
+                  : `${maxBedrooms} Bedrooms`
+          }
 
           // Popup design (when hovering over price marker)
           const popupHtml = `
             <div style="max-width: 200px;">
               <img src="${p.image}" alt="${p.building}" style="width: 100%; border-radius: 8px; margin-bottom: 6px;" />
               <b>${p.building}</b><br>
+              <hr style="border: none; border-top: 1px solid #aaa; margin: 1px 0;">
+              <span style="font-size: 15px; color: #333;">${priceLabel}</span><br>
+              <span style="font-size: 15px; color: #333;">${bedroomsLabel}</span><br>
               <span style="font-size: 15px; color: #333;">${availabilityLabel}</span><br>
             </div>
           `;
@@ -436,7 +644,7 @@
           /* ICON MARKER */
 
 
-          // If building has custom icons
+          // If building has custom icons (unused)
           let icon = customIcon;
           let zIndex = 0;
           if(p.address === "The Armature") {
@@ -447,10 +655,11 @@
             zIndex = 1000;
           }
 
-          // Consider adding shadow. Likely need a svg
-          const pinHtml = `<img src="map_pin.png" style="width: 50px; height: 50px; filter: drop-shadow(1px 2px 2px rgb(0, 0, 0));" />`;
+          // How (P) marker looks
+          const pinHtml = `<img src="map_pin.png" class="icon-marker" style="width: 50px; height: 50px; filter: drop-shadow(1px 2px 2px rgb(0, 0, 0));" />`;
           const normalIcon = makeIcon(pinHtml, p.count, [50,50]);
 
+          // Create (P) marker
           L.marker([lat, lng], { 
             icon: normalIcon
           })
@@ -469,25 +678,31 @@
 
           
           const priceNum = parseFloat(p.minPrice);
-
+          // Format price text
           const label = priceNum === Infinity
-            ? "$1800+"
+            ? "$1,800+" // If price isn't put on listing, it uses this instead
             : p.count > 1
-              ? `${p.priceFormatted}+`
-              : `${p.priceFormatted}`;
+              ? p.priceFormatted !== p.maxPriceFormatted // Building has more than 1 unit
+                // ? `${p.priceFormatted}+ (${p.count})`
+                ? `${p.priceFormatted}+`
+                : `${p.priceFormatted}&nbsp;`
+              : `${p.priceFormatted}`; // Building has 1 unit
 
+          // Shadow color of the price icons
           const shadowColor = priceNum === Infinity
-            ? "orange"
-            : colorScale(priceNum);
+            ? "green" // If price isn't listed
+            : colorScale(priceNum); // If price is listed, give it a gradient based on price
 
+          // Gives the price icon a gradient shadow
           const priceHtml = `
             <div class="price-marker"
-                style="box-shadow: 0 0 3px ${shadowColor};">
+                style="box-shadow: 0 0 2px ${shadowColor};">
               ${label}
             </div>
           `;
           const priceIcon = makeIcon(priceHtml, p.count, [50,50], 'price-marker-icon', true);
 
+          // Create price marker and attach popup
           const priceMarker = L.marker([lat,lng], { icon: priceIcon })
             .bindTooltip(popupHtml, {
               direction: 'top',
@@ -558,21 +773,26 @@
 
 
       // Change marker type based on zoom
-      const changeMapThreshold = 16;
+      const changeMapThreshold = 16; // Zoom level to change map type
+      const pplogo = document.querySelector('.pplogo');
       let lastZoom = map.getZoom();
       map.on('zoomend', () => {
         const z = map.getZoom();
+        // Switch from icon to price marker
         if ((lastZoom < 14 && z >= 14) || (lastZoom >= 14 && z < 14)) {
           updateMarkers();
         }
+        // Change map type and add background to logo to make it readable
         if (lastZoom < changeMapThreshold && z >= changeMapThreshold) {
           map.removeLayer(Jawg_Streets);
           map.addLayer(esriSat);
           map.addLayer(osmLabels);
+          pplogo.classList.add('pplogo-bg');
         } else if (lastZoom >= changeMapThreshold && z < changeMapThreshold) {
           map.removeLayer(osmLabels);
           map.removeLayer(esriSat);
           map.addLayer(Jawg_Streets);
+          pplogo.classList.remove('pplogo-bg');
         }
         lastZoom = z;
       });
@@ -589,10 +809,18 @@
       }
       updateMarkers();
 
+      // End loading
+      loader.style.display = 'none';
+
 
       /* TAB SETTINGS */
 
 
+      function removeBounds() {
+        document.querySelectorAll('.tab').forEach(tab => {
+          map.removeLayer(tab.bounds);
+        });
+      }
       // Tab clicks
       document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
@@ -600,6 +828,12 @@
           const lng = parseFloat(tab.dataset.lng);
           const zoom = parseInt(tab.dataset.zoom);
           map.setView([lat, lng], zoom);
+          if (tab.bounds) {
+            removeBounds();
+            map.addLayer(tab.bounds);
+          } else {
+            console.warn(`No boundaryLayer loaded yet for ${tab.id}`);
+          }
         });
       });
     });
