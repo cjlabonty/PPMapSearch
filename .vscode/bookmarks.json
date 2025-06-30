@@ -9,62 +9,62 @@
 					"label": "Styles"
 				},
 				{
-					"line": 284,
+					"line": 272,
 					"column": 0,
 					"label": "Page Layout"
 				},
 				{
-					"line": 317,
+					"line": 305,
 					"column": 6,
 					"label": "Map Settings"
 				},
 				{
-					"line": 397,
+					"line": 382,
 					"column": 6,
 					"label": "Icons"
 				},
 				{
-					"line": 432,
+					"line": 414,
 					"column": 6,
 					"label": "Fetch Endpoint"
 				},
 				{
-					"line": 477,
+					"line": 459,
 					"column": 6,
 					"label": "Combine Units"
 				},
 				{
-					"line": 561,
+					"line": 543,
 					"column": 6,
 					"label": "Markers"
 				},
 				{
-					"line": 629,
+					"line": 611,
 					"column": 10,
 					"label": "Popup"
 				},
 				{
-					"line": 641,
+					"line": 623,
 					"column": 1,
 					"label": "Icon Marker"
 				},
 				{
-					"line": 674,
+					"line": 656,
 					"column": 10,
 					"label": "Price Marker"
 				},
 				{
-					"line": 738,
+					"line": 720,
 					"column": 6,
 					"label": "Icon Settings"
 				},
 				{
-					"line": 769,
+					"line": 751,
 					"column": 25,
 					"label": "Zoom Controls"
 				},
 				{
-					"line": 813,
+					"line": 795,
 					"column": 6,
 					"label": "Tab Settings"
 				}

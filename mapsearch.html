@@ -62,7 +62,7 @@
 
     /* Image version */
     /* .tab-portland {
-      background-image: url("portland.jpg");
+      background-image: url("resource/portland.jpg");
       background-position: 10% 20%;
       background-size: 130%;
       color: white;
@@ -70,7 +70,7 @@
       text-shadow: 1px 1px 3px rgba(2, 0, 121, 1);
     }
     .tab-south-portland {
-      background-image: url("south-portland.jpg");
+      background-image: url("resource/south-portland.jpg");
       background-position: 10% 40%;
       background-size: 140%;
       color: white;
@@ -78,7 +78,7 @@
       text-shadow: 1px 1px 3px rgb(75, 75, 75);
     }
     .tab-biddeford {
-      background-image: url("biddeford.jpg");
+      background-image: url("resource/biddeford.jpg");
       background-position: 80% 35%;
       background-size: 110%;
       color: white;
@@ -86,7 +86,7 @@
       text-shadow: 1px 1px 3px rgb(131, 6, 6);
     }
     .tab-wilmington {
-      background-image: url("wilmington.jpg");
+      background-image: url("resource/wilmington.jpg");
       background-position: 40% 40%;
       background-size: 110%;
       color: white;
@@ -96,28 +96,16 @@
 
     /* Simple version */
     .tab-portland {
-      color: black;
-      font-weight: bold;
-      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
-      box-shadow: 0px 0px 1px rgb(0, 90, 207);
+      color: black; font-weight: bold; box-shadow: 0px 0px 1px rgb(0, 90, 207);
     }
     .tab-south-portland {
-      color: black;
-      font-weight: bold;
-      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
-      box-shadow: 0px 0px 1px rgb(255, 136, 0);
+      color: black; font-weight: bold; box-shadow: 0px 0px 1px rgb(255, 136, 0);
     }
     .tab-biddeford {
-      color: black;
-      font-weight: bold;
-      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
-      box-shadow: 0px 0px 1px rgb(255, 2, 2);
+      color: black; font-weight: bold; box-shadow: 0px 0px 1px rgb(255, 2, 2);
     }
     .tab-wilmington {
-      color: black;
-      font-weight: bold;
-      /* text-shadow: 0px 1px 3px rgb(177, 177, 177); */
-      box-shadow: 0px 0px 1px rgb(184, 3, 255);
+      color: black; font-weight: bold; box-shadow: 0px 0px 1px rgb(184, 3, 255);
     }
 
     .tab:hover { /* When cursor is hovering over one of the tabs */
@@ -287,13 +275,13 @@
 
 <body>
   <div class="page-layout">
-    <img src="header2.png" class="header" />
+    <img src="resource/header2.png" class="header" />
     <div class="content-row">
-      <img src="filters.png" class="side-image" />
+      <img src="resource/filters.png" class="side-image" />
       <!-- Map container -->
       <div id="map">
         <div id="mapLoader" class="map-loader" style="display: none;"></div>
-        <img src="pplogo.jpg" class="pplogo" />
+        <img src="resource/pplogo.jpg" class="pplogo" />
         <!-- Tabs -->
         <div class="tab-container">
           <div id="Portland" class="tab tab-portland" data-lat="43.6557" data-lng="-70.2671" data-zoom="14" data-bounds="">Portland</div>
@@ -302,7 +290,7 @@
           <div id="Wilmington" class="tab tab-wilmington" data-lat="34.2070" data-lng="-77.8865" data-zoom="13" data-bounds="">Wilmington</div>
         </div>
       </div>
-      <img src="units.png" class="side-image" />
+      <img src="resource/units.png" class="side-image" />
     </div>
 
   <!-- Load Leaflet JS -->
@@ -318,8 +306,8 @@
       /* MAP SETTINGS */
 
 
-      // Create map and zoom into Portland
-      const map = L.map("map").setView([43.6557, -70.2671], 14);
+      // Create map
+      const map = L.map("map");
       // Recenter map after page loads
       window.addEventListener("load", () => {
         map.invalidateSize();
@@ -346,46 +334,43 @@
         { maxZoom: 19, attribution: '© OpenStreetMap contributors' }
       );
       // Portland city boundaries polygon
-      fetch('portland.geojson')
+      fetch('boundaries/portland.geojson')
       .then(res => res.json())
       .then(geojson => {
         const boundaryLayer = L.geoJSON(geojson, {
           style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
-        //}).addTo(map);
         });
         document.getElementById('Portland').bounds = boundaryLayer;
       });
       // South Portland city boundaries polygon
-      fetch('south-portland.geojson')
+      fetch('boundaries/south-portland.geojson')
       .then(res => res.json())
       .then(geojson => {
         const boundaryLayer = L.geoJSON(geojson, {
           style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
-        //}).addTo(map);
         });
         document.getElementById('SouthPortland').bounds = boundaryLayer;
       });
       // Biddeford city boundaries polygon
-      fetch('biddeford.geojson')
+      fetch('boundaries/biddeford.geojson')
       .then(res => res.json())
       .then(geojson => {
         const boundaryLayer = L.geoJSON(geojson, {
           style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
-        //}).addTo(map);
         });
         document.getElementById('Biddeford').bounds = boundaryLayer;
       });
-      fetch('wilmington.geojson')
+      // Wilmington city boundaries polygon
+      fetch('boundaries/wilmington.geojson')
       .then(res => res.json())
       .then(geojson => {
         const boundaryLayer = L.geoJSON(geojson, {
           style: { color: 'blue', opacity: 0.2, weight: 2, fillOpacity: 0.05 }
-        //}).addTo(map);
         });
         document.getElementById('Wilmington').bounds = boundaryLayer;
       });
       // Westbrook city boundaries polygon
-      // fetch('westbrook.geojson')
+      // fetch('boundaries/westbrook.geojson')
       // .then(res => res.json())
       // .then(geojson => {
       //   const boundaryLayer = L.geoJSON(geojson, {
@@ -409,7 +394,7 @@
 
       // Custom linden icon
       const lindenIcon = L.icon({
-        iconUrl: 'thelinden.png',
+        iconUrl: 'resource/thelinden.png',
         iconSize: [60, 60],
         iconAnchor: [30, 60],
         popupAnchor: [0, -45],
@@ -418,9 +403,6 @@
 
       // Normal (P) icon
       const customIcon = L.icon({
-        // iconUrl: 'https://www.portproperty.com/uploads/home-marker.png',
-        iconUrl: 'map_pin.png',
-        // iconUrl: 'house.png',
         iconSize: [50, 50],
         iconAnchor: [25, 50],
         popupAnchor: [0, -45],
@@ -656,7 +638,7 @@
           }
 
           // How (P) marker looks
-          const pinHtml = `<img src="map_pin.png" class="icon-marker" style="width: 50px; height: 50px; filter: drop-shadow(1px 2px 2px rgb(0, 0, 0));" />`;
+          const pinHtml = `<img src="resource/map_pin.png" class="icon-marker" style="width: 50px; height: 50px; filter: drop-shadow(1px 2px 2px rgb(0, 0, 0));" />`;
           const normalIcon = makeIcon(pinHtml, p.count, [50,50]);
 
           // Create (P) marker
